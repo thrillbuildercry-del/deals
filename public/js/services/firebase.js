@@ -63,10 +63,7 @@ export {
     where,
     orderBy,
     onSnapshot,
-<<<<<<< Updated upstream
-=======
     getDocs, // <--- EXPORT THIS
->>>>>>> Stashed changes
     runTransaction,
     serverTimestamp
 };
