@@ -20,7 +20,7 @@ export const PRICING = {
     }
 };
 
-export const ECONOMICS = {
+export const DRIVER_ECONOMICS = {
     DRIVER_PROFIT_PER_ITEM: 20,
     BASE_COST: 60 // Base debt per item (Standard)
 };
