@@ -12,6 +12,7 @@ import {
     getDoc, 
     setDoc, 
     updateDoc,
+    deleteDoc, 
     addDoc, 
     collection,
     query,
@@ -20,12 +21,12 @@ import {
     onSnapshot,
     getDocs,
     runTransaction,
-    serverTimestamp 
+    serverTimestamp,
+    increment 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // REPLACE WITH YOUR FIREBASE CONFIG
 const firebaseConfig = {
-    // Paste your config object here
     apiKey: "AIzaSyDz4iG5KZy3JAxBhubaGEaMKTY7jcObRDE",
     authDomain: "deals-bcfea.firebaseapp.com",
     projectId: "deals-bcfea",
@@ -50,6 +51,7 @@ export {
     getDoc, 
     setDoc, 
     updateDoc,
+    deleteDoc,
     addDoc,
     collection,
     query,
@@ -58,5 +60,6 @@ export {
     onSnapshot,
     getDocs,
     runTransaction,
-    serverTimestamp
+    serverTimestamp,
+    increment
 };

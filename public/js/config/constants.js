@@ -10,8 +10,9 @@ export const STATUS = {
     SUSPENDED: 'suspended'
 };
 
+// Pricing Logic: Standard (Linear) vs Deal (Discounted)
 export const PRICING = {
-    SINGLE: 80,
+    SINGLE_PRICE: 80, // Standard linear price base
     DEAL_TIERS: {
         1: 80,
         2: 150,
@@ -21,6 +22,6 @@ export const PRICING = {
 };
 
 export const DRIVER_ECONOMICS = {
-    DRIVER_PROFIT_PER_ITEM: 20,
-    BASE_COST: 60 // Base debt per item (Standard)
+    PROFIT_PER_ITEM: 20, // Standard profit
+    BASE_COST: 60 // What driver owes house per item
 };
