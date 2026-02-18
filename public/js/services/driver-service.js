@@ -1,91 +1,73 @@
-import { db, doc, setDoc, getDoc, updateDoc, APP_ID } from './firebase.js';
-import { PRICING, ECONOMICS } from '../config/constants.js';
 
-// Saves the entire driver state (Offline capable logic)
-export const saveDriverState = async (userId, appData) => {
-    if (!userId || !appData) return;
+import { db, doc, runTransaction, serverTimestamp, collection, addDoc } from './firebase.js';
+import { calculateSaleMetrics } from '../utils/calculations.js';
 
-    // 1. Calculate Aggregates for Public View (Roster)
-    let todaySold = 0;
-    let todayProfit = 0;
-    let todayGross = 0;
-
-    appData.currentTransactions.forEach(t => {
-        todaySold += t.qty;
-        todayProfit += t.profit;
-        todayGross += t.price;
-    });
+/**
+ * Records a sale: Updates User (Stock/Debt) and creates a Sale Record
+ */
+export const processSale = async (userId, quantity) => {
+    const metrics = calculateSaleMetrics(quantity);
+    const userRef = doc(db, "users", userId);
+    const salesRef = collection(db, "sales");
 
     try {
-        // Save Private Data (Full State)
-        await setDoc(doc(db, 'artifacts', APP_ID, 'users', userId, 'data', 'app_state'), {
-            json: JSON.stringify(appData),
-            lastUpdated: Date.now()
+        await runTransaction(db, async (transaction) => {
+            // 1. Get current user data
+            const userDoc = await transaction.get(userRef);
+            if (!userDoc.exists()) throw "User does not exist!";
+            
+            const userData = userDoc.data();
+            const newStock = (userData.currentStock || 0) - quantity;
+            const newDebt = (userData.currentDebt || 0) + metrics.debtIncrease;
+
+            if (newStock < 0) {
+                throw "Insufficient Stock!";
+            }
+
+            // 2. Update User Data
+            transaction.update(userRef, {
+                currentStock: newStock,
+                currentDebt: newDebt
+            });
+
+            // 3. Create Sale Record (We can't return ID from transaction directly, but we write it)
+            // Note: In Firestore transactions, write operations must come after reads.
+            // Since 'addDoc' generates an ID automatically, we use a slightly different approach for transactions 
+            // if we want strict consistency, but for sales logs, a batch or standard write is often okay. 
+            // However, to be strict, we can generate a ref first.
+            const newSaleRef = doc(salesRef); 
+            transaction.set(newSaleRef, {
+                driverId: userId,
+                quantity: metrics.quantity,
+                grossRevenue: metrics.grossRevenue,
+                debtIncrease: metrics.debtIncrease,
+                driverProfit: metrics.driverProfit,
+                timestamp: serverTimestamp(),
+                type: 'walk-up'
+            });
         });
-
-        // Sync Public Data (Summary for Admin)
-        await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'roster', userId), {
-            stock: appData.stock,
-            debt: appData.debt,
-            onlineStatus: appData.onlineStatus || 'offline',
-            vehicle: appData.vehicle || {},
-            todaySold,
-            todayProfit,
-            todayGross,
-            recentLogs: appData.currentTransactions.slice(-20).reverse(), // Last 20 sales
-            history: appData.history.slice(-30) // Last 30 days history
-        }, { merge: true });
-
-    } catch (e) {
-        console.error("Save failed", e);
+        return { success: true, metrics };
+    } catch (error) {
+        console.error("Sale Transaction Failed:", error);
+        return { success: false, error: error };
     }
 };
 
-// Calculates Sale Metrics
-export const calculateTransaction = (qty, type) => {
-    let price = 0;
-    let profit = 0;
-    let owed = 0;
-
-    if (type === 'full') {
-        // Standard Pricing
-        price = PRICING.SINGLE * qty;
-        profit = ECONOMICS.DRIVER_PROFIT_PER_ITEM * qty;
-    } else {
-        // Deal Pricing
-        // Logic: Recursively apply 4-pack deal, then remainder
-        let remaining = qty;
-        const tiers = PRICING.DEAL_TIERS;
-        
-        while (remaining >= 4) {
-            price += tiers[4];
-            profit += (ECONOMICS.DRIVER_PROFIT_PER_ITEM * 4);
-            remaining -= 4;
-        }
-        
-        if (remaining > 0) {
-            price += tiers[remaining];
-            profit += (ECONOMICS.DRIVER_PROFIT_PER_ITEM * remaining);
-        }
-    }
-
-    // Debt logic: Owed = Total collected - Your keep
-    owed = price - profit;
-
-    return { price, profit, owed };
-};
-
-// Prediction Logic
-export const predictWeeklyEarnings = (history) => {
-    if (!history || history.length === 0) return 0;
+/**
+ * Start Shift Logic
+ */
+export const startShift = async (userId) => {
+    const shiftRef = collection(db, "shifts");
+    const userRef = doc(db, "users", userId);
     
-    // Get stats for current week (last 7 days)
-    const recent = history.slice(-7);
-    const totalProfit = recent.reduce((sum, day) => sum + (day.profit || 0), 0);
-    const daysActive = recent.length;
-    
-    if (daysActive === 0) return 0;
-    
-    const dailyAvg = totalProfit / daysActive;
-    return Math.round(dailyAvg * 7);
+    // Create a new shift document
+    const docRef = await addDoc(shiftRef, {
+        driverId: userId,
+        startTime: serverTimestamp(),
+        status: 'open'
+    });
+
+    // Update user to know they are on a shift
+    // (Optional: You might want to store currentShiftId on the user to prevent double starts)
+    return docRef.id;
 };
