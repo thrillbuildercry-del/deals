@@ -18,6 +18,7 @@ import {
     where,
     orderBy, 
     onSnapshot,
+    getDocs,
     runTransaction,
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -55,6 +56,7 @@ export {
     where,
     orderBy,
     onSnapshot,
+    getDocs,
     runTransaction,
     serverTimestamp
 };
