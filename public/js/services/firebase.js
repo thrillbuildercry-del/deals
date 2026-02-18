@@ -18,17 +18,9 @@ import {
     where,
     orderBy, 
     onSnapshot,
-<<<<<<< Updated upstream
     runTransaction,
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-=======
-    getDocs, // <--- ADDED THIS
-    runTransaction,
-    serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
->>>>>>> Stashed changes
 
 // REPLACE WITH YOUR FIREBASE CONFIG
 const firebaseConfig = {
@@ -63,7 +55,6 @@ export {
     where,
     orderBy,
     onSnapshot,
-    getDocs, // <--- EXPORT THIS
     runTransaction,
     serverTimestamp
 };
