@@ -12,9 +12,16 @@ import {
     doc, 
     getDoc, 
     setDoc, 
+    updateDoc,
+    addDoc, 
+    collection,
+    query,
+    where,
+    orderBy, 
+    onSnapshot,
+    runTransaction,
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { ROLES, STATUS } from '../config/constants.js';
 
 // REPLACE WITH YOUR FIREBASE CONFIG
 const firebaseConfig = {
@@ -31,4 +38,23 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-export { auth, db, provider, signInWithPopup, signOut, onAuthStateChanged, doc, getDoc, setDoc };
+export { 
+    auth, 
+    db, 
+    provider, 
+    signInWithPopup, 
+    signOut, 
+    onAuthStateChanged, 
+    doc, 
+    getDoc, 
+    setDoc, 
+    updateDoc,
+    addDoc,
+    collection,
+    query,
+    where,
+    orderBy,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp
+};
