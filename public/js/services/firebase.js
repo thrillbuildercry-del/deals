@@ -1,4 +1,3 @@
-// js/services/firebase.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
     getAuth, 
@@ -19,18 +18,27 @@ import {
     where,
     orderBy, 
     onSnapshot,
+<<<<<<< Updated upstream
+    runTransaction,
+    serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+=======
+    getDocs, // <--- ADDED THIS
     runTransaction,
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+>>>>>>> Stashed changes
+
 // REPLACE WITH YOUR FIREBASE CONFIG
 const firebaseConfig = {
-    apiKey: "AIzaSyBgX9tL8zEaPvaZIcqDdk8XHzz4y7MvCeU",
-    authDomain: "salesonwheels-f6eec.firebaseapp.com",
-    projectId: "salesonwheels-f6eec",
-    storageBucket: "salesonwheels-f6eec.firebasestorage.app",
-    messagingSenderId: "432785821226",
-    appId: "1:432785821226:web:96b34cc3d0526160b0bd53"
+    // Paste your config object here
+    apiKey: "AIzaSyDz4iG5KZy3JAxBhubaGEaMKTY7jcObRDE",
+    authDomain: "deals-bcfea.firebaseapp.com",
+    projectId: "deals-bcfea",
+    storageBucket: "deals-bcfea.firebasestorage.app",
+    messagingSenderId: "686014043249",
+    appId: "1:686014043249:web:8dcc93549cdb265269b7d0"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -55,6 +63,10 @@ export {
     where,
     orderBy,
     onSnapshot,
+<<<<<<< Updated upstream
+=======
+    getDocs, // <--- EXPORT THIS
+>>>>>>> Stashed changes
     runTransaction,
     serverTimestamp
 };
